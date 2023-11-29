@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <stdio.h>
-#include <stdint.h>
 
 #include "SerialMonitorData.h"
 #include "SerialMonitorConnect.h"
@@ -23,6 +22,7 @@ int main()
 
 		goto Exit;
 	}
+	printf_s("Connected to %s.\n", sPort);
 
 	if (SetDCB(com) == FALSE)
 	{
@@ -32,6 +32,7 @@ int main()
 
 		goto Exit;
 	}
+	printf_s("Set DCB Params.\n");
 
 	if (SetTimeouts(com) == FALSE)
 	{
@@ -41,9 +42,10 @@ int main()
 
 		goto Exit;
 	}
-	
+	printf_s("Set Timeouts.\n");
+
 	SetConsoleTitle("Arduino Serial Monitor");
-	
+
 	while (TRUE)
 	{
 		HANDLE temp = ConnectToPort(sPort);
@@ -59,8 +61,8 @@ int main()
 		}
 
 		// Pin to Read From
-		BYTE outBuffer = D0;
-		WriteFile(com, outBuffer, sizeof(outBuffer), NULL, NULL);
+		BYTE outBuffer = p_A0;
+		WriteFile(com, &outBuffer, 1, NULL, NULL);
 
 		SetCommMask(com, EV_RXCHAR);
 		DWORD dwEventMask = 0;
@@ -68,10 +70,14 @@ int main()
 
 		SHORT inBuffer = 0;
 		ReadFile(com, &inBuffer, sizeof(inBuffer), NULL, NULL);
-
 		printf_s("%hi \n", inBuffer);
 	}
 
 Exit:
+	if (com == INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(com);
+	}
+
 	return 0;
 }
