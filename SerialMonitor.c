@@ -1,3 +1,4 @@
+#define ARDUINO
 #include "SerialMonitorData.h"
 
 void setup()
